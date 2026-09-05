@@ -1,0 +1,434 @@
+<!--
+  ELITECIRCLE — Quiz-Funnel ("Speed-Analyse")  · Look/Feel wie landingpage-v2
+  ===================================================================================
+  ANPASSEN vor dem Live-Gang (Cmd+F nach  >>> ):
+   1. Termin-Link:  DEIN-BOOKING-LINK  überall ersetzen.
+   2. Lead-Daten:   siehe  submitLead()  im Script — dort deinen Webhook/CRM (Make/Zapier/
+                    GoHighLevel/E-Mail) anbinden. Aktuell werden die Daten nur lokal gehalten.
+   3. Datenschutz-Link im Consent-Feld + Impressum setzen (Pflicht in DE).
+   4. Akzentfarbe --accent = Gold (Marke). Für roten Look: #e8483f.
+   5. Elite-Armee-Link: DEIN-ELITE-ARMEE-LINK  (2x, in "underage" + "disqualified")
+                        durch den Bryght-Checkout-Link ersetzen, sobald das
+                        Elite-Armee-Produkt (399 € / Klarna+PayPal-Raten) dort angelegt ist.
+   6. Social-Vorschau (Open-Graph, im <head>): DEIN-OG-BILD-URL durch ein Bild
+                        (empfohlen 1200x630px) und DEINE-QUIZ-URL durch die
+                        finale Quiz-URL ersetzen — sonst zeigt der geteilte Link
+                        in TikTok/Insta/WhatsApp kein Vorschaubild.
+   7. Clipper-Tracking (Provision): Jeder Clipper verschickt in der DM-Erstnachricht
+                        seinen EIGENEN Link mit Code, z.B.
+                        deine-domain.de/quiz-funnel.html?c=lisa
+                        Der Code wird beim Laden automatisch gelesen und beim Absenden
+                        ins Lead-Objekt geschrieben (siehe submitLead()) unter "clipper"
+                        — Grundlage für die Provisions-Zuordnung im Close CRM, sobald
+                        der Webhook steht. Kein Code in der URL → wird als "direkt"
+                        geführt. Liste der vergebenen Clipper-Codes irgendwo intern
+                        pflegen (klein schreiben, konsistent halten — Tippfehler im
+                        Code = falsche/keine Provisionszuordnung).
+  ===================================================================================
+-->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EliteCircle — 180-Sekunden Speed-Analyse</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2309090c'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%23d4af37' stroke-width='7'/%3E%3C/svg%3E">
+<meta name="description" content="Finde in nur 8 kurzen Fragen heraus, ob die Content-to-Cash-Methode zu dir passt.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="EliteCircle — 180-Sekunden Speed-Analyse">
+<meta property="og:description" content="Finde in nur 8 kurzen Fragen heraus, ob du mit Social Media & KI aus deinem Content echtes Geld machen kannst.">
+<meta property="og:image" content="DEIN-OG-BILD-URL">
+<meta property="og:url" content="DEINE-QUIZ-URL">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{
+    --bg:#09090c; --bg-soft:#101015; --card:#121218; --card-hi:#16161d;
+    --accent:#d4af37; --accent-soft:#e6c860; --accent-strong:#b8932f;
+    --lila:#8b5cf6; --text:#f4f1ea; --muted:#8c8c97; --muted-d:#5d5d68;
+    --line:rgba(212,175,55,.16); --green:#3ecf8e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:"Helvetica Neue",Arial,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;
+    background-image:radial-gradient(900px 520px at 50% -6%,rgba(212,175,55,.12),transparent 60%),radial-gradient(700px 480px at 50% 116%,rgba(139,92,246,.08),transparent 60%)}
+  .accent{color:var(--accent)}
+
+  /* top bar */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(9,9,12,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .topbar-in{max-width:820px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;font-size:.98rem;text-decoration:none;color:var(--text)}
+  .brand img{height:28px}
+  .topbar .tag{font-size:.78rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  @media(max-width:520px){.topbar .tag{display:none}}
+
+  /* progress */
+  .progress{height:4px;background:rgba(255,255,255,.06);position:sticky;top:57px;z-index:19}
+  .progress .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent-strong),var(--accent-soft));transition:width .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 14px rgba(212,175,55,.6)}
+
+  /* stage */
+  .stage{max-width:640px;margin:0 auto;padding:48px 22px 90px;position:relative}
+  .step{display:none}
+  .step.active{display:block;animation:fadeUp .45s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+  .eyebrow{font-size:.76rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:14px;text-align:center}
+  h1{font-size:clamp(1.9rem,5.4vw,2.9rem);font-weight:800;letter-spacing:-1px;line-height:1.1;text-align:center;margin-bottom:18px}
+  h1 .hl{color:var(--accent)}
+  .sub{color:var(--muted);text-align:center;font-size:1.08rem;max-width:520px;margin:0 auto 30px}
+
+  /* benefits */
+  .benefits{max-width:480px;margin:0 auto 34px;display:flex;flex-direction:column;gap:14px}
+  .benefit{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;font-size:1.12rem;font-weight:600}
+  .benefit .bic{font-size:1.5rem;flex:0 0 auto;line-height:1}
+  /* welcome extras */
+  .badge{display:inline-block;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:700;border:1px solid var(--line);border-radius:50px;padding:9px 20px;background:rgba(212,175,55,.06)}
+  .meta-line{text-align:center;color:var(--muted-d);font-size:.92rem;margin-top:16px}
+
+  /* mentor mini */
+  .mini{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:34px;color:var(--muted);font-size:.9rem}
+  .mini img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+  .mini b{color:var(--text)}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;text-decoration:none;border-radius:14px;padding:17px 32px;font-size:1.05rem;border:none;cursor:pointer;width:100%;transition:transform .16s,box-shadow .16s}
+  .btn-primary{background:#14100a;color:var(--text);border:1px solid rgba(212,175,55,.4);box-shadow:0 0 34px rgba(212,175,55,.3)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 46px rgba(212,175,55,.46)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* question */
+  .qcount{text-align:center;color:var(--muted-d);font-size:.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+  .qtitle{font-size:clamp(1.4rem,3.6vw,1.9rem);font-weight:800;text-align:center;line-height:1.25;margin-bottom:30px;letter-spacing:-.5px;
+    background:linear-gradient(180deg,#fdfbf4 0%,#f4e2a8 55%,#d4af37 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent-soft);padding-bottom:2px}
+  .options{display:flex;flex-direction:column;gap:13px}
+  .opt{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:19px 46px 19px 22px;font-size:1.05rem;color:var(--text);cursor:pointer;
+    transition:border-color .18s,background .18s,transform .16s,box-shadow .2s;
+    animation:optIn .45s cubic-bezier(.2,.8,.2,1) backwards}
+  @keyframes optIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .opt:hover{border-color:var(--accent);background:var(--card-hi);transform:translateY(-2px) scale(1.015);box-shadow:0 10px 30px rgba(212,175,55,.16)}
+  .opt::after{content:"›";position:absolute;right:20px;top:50%;transform:translateY(-50%) translateX(8px);color:var(--accent);font-size:1.5rem;font-weight:700;opacity:0;transition:opacity .2s,transform .2s}
+  .opt:hover::after{opacity:1;transform:translateY(-50%) translateX(0)}
+  .opt.sel{border-color:var(--accent);background:linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.05));box-shadow:0 0 0 1px var(--accent),0 12px 34px rgba(212,175,55,.24);animation:pop .36s ease}
+  .opt.sel::after{opacity:1;transform:translateY(-50%) translateX(0)}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.04)}100%{transform:scale(1)}}
+  .opt .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted-d);flex:0 0 auto;display:grid;place-items:center;transition:border-color .18s}
+  .opt.sel .dot{border-color:var(--accent)}
+  .opt.sel .dot::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent);animation:dotIn .3s cubic-bezier(.2,1.5,.4,1)}
+  @keyframes dotIn{from{transform:scale(0)}to{transform:scale(1)}}
+  .ripple{position:absolute;border-radius:50%;background:rgba(212,175,55,.3);transform:scale(0);animation:ripple .6s ease-out forwards;pointer-events:none}
+  @keyframes ripple{to{transform:scale(2.6);opacity:0}}
+
+  .nav-row{display:flex;justify-content:center;margin-top:26px}
+  .back{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.92rem;padding:8px 14px}
+  .back:hover{color:var(--accent)}
+
+  /* form */
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:.88rem;color:var(--muted);margin-bottom:7px}
+  .field input{width:100%;background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:15px 16px;color:var(--text);font-size:1rem;font-family:inherit}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .consent{display:flex;gap:11px;align-items:flex-start;margin:18px 0 24px;font-size:.85rem;color:var(--muted)}
+  .consent input{margin-top:3px;accent-color:var(--accent);width:17px;height:17px;flex:0 0 auto}
+  .consent a{color:var(--accent)}
+
+  /* result */
+  .result-icon{width:84px;height:84px;border-radius:50%;margin:0 auto 24px;display:grid;place-items:center;font-size:2.4rem;background:linear-gradient(135deg,rgba(62,207,142,.2),rgba(212,175,55,.14));border:1px solid var(--line)}
+  .recap{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin:26px 0}
+  .recap h4{font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .recap .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.92rem}
+  .recap .row:last-child{border-bottom:none}
+  .recap .row .q{color:var(--muted)} .recap .row .a{color:var(--text);font-weight:600;text-align:right}
+  .result-cta{margin-top:8px}
+  .trust{text-align:center;color:var(--muted-d);font-size:.85rem;margin-top:16px}
+  .ea-card{background:linear-gradient(180deg,rgba(212,175,55,.09),transparent);border:1px solid var(--accent);border-radius:16px;padding:26px 22px;margin-top:26px;text-align:center;box-shadow:0 0 34px rgba(212,175,55,.12)}
+  .ea-badge{display:inline-block;font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:12px}
+  .ea-card h3{font-size:1.28rem;margin-bottom:10px;color:var(--text);font-weight:800}
+  .ea-card p{color:var(--muted);font-size:.98rem;margin:0 auto 18px;max-width:440px}
+  .ea-price{color:var(--muted-d);font-size:.85rem;margin:12px 0 0}
+  .ea-back{display:inline-block;margin-top:20px;color:var(--muted);font-size:.9rem;background:none;border:none;cursor:pointer;text-decoration:underline}
+  .ea-back:hover{color:var(--accent)}
+
+  .spinner{width:46px;height:46px;border:4px solid rgba(212,175,55,.2);border-top-color:var(--accent);border-radius:50%;margin:30px auto;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#" onclick="goHome(event)" title="Zur Startseite"><span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);flex:0 0 auto"></span><span>Elite<span style="color:var(--accent)">Circle</span></span></a>
+    <span class="tag">Speed-Analyse</span>
+  </div>
+</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+
+<div class="stage">
+
+  <!-- ===== WELCOME ===== -->
+  <div class="step active" data-step="welcome">
+    <div style="text-align:center;margin-bottom:22px"><span class="badge">⚡ 180-Sekunden Speed-Analyse</span></div>
+    <h1 style="font-size:clamp(2.2rem,6.2vw,3.4rem)">Passt die <span class="hl">Content-to-Cash-Methode</span> zu dir?</h1>
+    <p class="sub">Finde in nur <span id="qCountSub">8</span> kurzen Fragen heraus, ob du mit Social Media &amp; KI aus deinem Content echtes Geld machen kannst.</p>
+    <div class="benefits">
+      <div class="benefit"><span class="bic">✅</span> Keine Vorerfahrung nötig</div>
+      <div class="benefit"><span class="bic">🔒</span> 100% anonym möglich</div>
+      <div class="benefit"><span class="bic">📲</span> Nur Handy &amp; Internet nötig</div>
+    </div>
+    <button class="btn btn-primary" onclick="start()">Analyse starten →</button>
+    <p class="meta-line"><span id="qCountMeta">8</span> Fragen · ca. 3 Minuten · sofortige Auswertung</p>
+  </div>
+
+  <!-- ===== QUESTIONS (werden per JS gerendert) ===== -->
+  <div class="step" data-step="question">
+    <div class="qcount" id="qcount"></div>
+    <div class="qtitle" id="qtitle"></div>
+    <div class="options" id="options"></div>
+    <div class="nav-row"><button class="back" id="backBtn" onclick="back()">← Zurück</button></div>
+  </div>
+
+  <!-- ===== LEAD FORM ===== -->
+  <div class="step" data-step="form">
+    <p class="eyebrow">Fast geschafft</p>
+    <h1>Herzlichen <span class="hl">Glückwunsch!</span></h1>
+    <p class="sub">Trage dich ein und sichere dir dein kostenloses Erstgespräch. Nach der Terminbuchung bekommst du deine kostenfreie Anleitung per E-Mail zugeschickt.</p>
+    <form id="leadForm" onsubmit="submitLead(event)">
+      <div class="field"><label>Vorname</label><input type="text" id="f-name" required placeholder="Dein Vorname" autocomplete="given-name"></div>
+      <div class="field"><label>E-Mail</label><input type="email" id="f-mail" required placeholder="deine@email.de" inputmode="email" autocomplete="email"></div>
+      <div class="field"><label>Telefon / WhatsApp</label><input type="tel" id="f-phone" required placeholder="+49 …" inputmode="tel" autocomplete="tel">
+        <p style="font-size:.78rem;color:var(--muted-d);margin-top:7px">Nur um dich zu deinem Termin zu kontaktieren — kein Spam.</p>
+      </div>
+      <label class="consent">
+        <input type="checkbox" id="f-consent" required>
+        <span>Ich stimme den <a href="#" target="_blank">Allgemeinen Geschäftsbedingungen</a> zu.</span>
+      </label>
+      <p style="font-size:.78rem;color:var(--muted-d);line-height:1.5;margin:-4px 0 20px">Mit dem Absenden willigst du in die Verarbeitung deiner Daten zur Kontaktaufnahme gemäß unserer <a href="datenschutz.html" target="_blank" style="color:var(--accent)">Datenschutzerklärung</a> ein.</p>
+      <button class="btn btn-primary" type="submit">Quiz abschließen →</button>
+      <div class="nav-row"><button class="back" type="button" onclick="back()">← Zurück</button></div>
+    </form>
+  </div>
+
+  <!-- ===== LOADING ===== -->
+  <div class="step" data-step="loading">
+    <p class="eyebrow">Analyse läuft</p>
+    <h1>Wir werten deine <span class="hl">Antworten</span> aus…</h1>
+    <div class="spinner"></div>
+    <p class="sub">Einen Moment — wir prüfen, ob der Weg zu dir passt.</p>
+  </div>
+
+  <!-- ===== RESULT ===== -->
+  <div class="step" data-step="result">
+    <div class="result-icon">✅</div>
+    <p class="eyebrow">Deine Auswertung</p>
+    <h1 id="res-title">Starker Kandidat!</h1>
+    <p class="sub" id="res-text"></p>
+    <div class="recap"><h4>Deine Angaben</h4><div id="recap"></div></div>
+    <p class="sub" style="margin-bottom:14px">Sichere dir jetzt dein Erstgespräch — direkt im Anschluss bekommst du deine kostenlose Anleitung.</p>
+    <a class="btn btn-primary result-cta" id="res-cta" href="DEIN-BOOKING-LINK">Erstgespräch sichern →</a>
+    <p class="trust">20–30 Min · 100% unverbindlich · begrenzte Plätze</p>
+  </div>
+
+  <!-- ===== UNTER 18 (abgefangen) ===== -->
+  <div class="step" data-step="underage">
+    <div class="result-icon" style="background:linear-gradient(135deg,rgba(224,89,107,.22),rgba(212,175,55,.12))">🔞</div>
+    <p class="eyebrow">Kurzer Hinweis</p>
+    <h1>Du musst <span class="hl">mindestens 18</span> sein</h1>
+    <p class="sub">Um an unserem Hauptprogramm teilzunehmen, musst du volljährig sein.</p>
+    <div class="ea-card">
+      <div class="ea-badge">⚔️ Die Elite Armee</div>
+      <h3>Trotzdem schon jetzt dabei sein?</h3>
+      <p>Werde Teil unserer <b>Elite Armee</b>: Verdiene mit, indem du uns auf Social Media bewirbst und weiterempfiehlst — flexibel, von überall und ohne Vorerfahrung.</p>
+      <a class="btn btn-primary" href="DEIN-ELITE-ARMEE-LINK" data-todo="Bryght-Checkout-Link hier einsetzen">Der Elite Armee beitreten →</a>
+      <p class="ea-price"><b style="color:var(--text)">399 € einmalig</b> — oder bequem in kleinen Monatsraten mit Klarna &amp; PayPal</p>
+      <p class="ea-price" style="margin-top:6px;color:var(--accent)">Unter 18 nur mit Einverständnis deiner Eltern</p>
+    </div>
+    <button class="ea-back" onclick="goHome()">← Zurück zur Startseite</button>
+  </div>
+
+  <!-- ===== DISQUALIFIZIERT (Tätigkeit) ===== -->
+  <div class="step" data-step="disqualified">
+    <div class="result-icon" style="background:linear-gradient(135deg,rgba(224,89,107,.2),rgba(212,175,55,.12))">🙏</div>
+    <p class="eyebrow">Danke für deine Ehrlichkeit</p>
+    <h1>Aktuell noch nicht der <span class="hl">richtige Zeitpunkt</span></h1>
+    <p class="sub">Basierend auf deiner aktuellen Situation ist unser Hauptprogramm gerade noch nicht der passende Schritt für dich.</p>
+    <div class="ea-card">
+      <div class="ea-badge">⚔️ Die Elite Armee</div>
+      <h3>Aber es gibt noch einen Weg für dich</h3>
+      <p>Werde Teil unserer <b>Elite Armee</b>: Verdiene mit, indem du uns auf Social Media bewirbst und weiterempfiehlst — flexibel, von überall und ohne Vorerfahrung.</p>
+      <a class="btn btn-primary" href="DEIN-ELITE-ARMEE-LINK" data-todo="Bryght-Checkout-Link hier einsetzen">Der Elite Armee beitreten →</a>
+      <p class="ea-price"><b style="color:var(--text)">399 € einmalig</b> — oder bequem in kleinen Monatsraten mit Klarna &amp; PayPal</p>
+    </div>
+    <button class="ea-back" onclick="goHome()">← Zurück zur Startseite</button>
+  </div>
+
+</div>
+
+<script>
+  /* ===== FRAGEN — hier anpassen/erweitern ===== */
+  const questions = [
+    { q: "Hast du schon einmal online Geld verdient und kennst du die Content-to-Cash-Methode?",
+      a: ["Ja, schon einmal", "Nein, noch nicht"] },
+    { q: "Wie alt bist du?",
+      a: ["Unter 18", "18–30", "31–40", "41+"], block: ["Unter 18"], blockStep: "underage" },
+    { q: "Was ist deine aktuelle Tätigkeit?",
+      a: ["Arbeitslos", "Selbstständig", "Vollzeit angestellt", "Azubi / Werkstudent", "Student / Minijobber", "Rentner", "Teilzeitjob"], block: ["Arbeitslos", "Student / Minijobber"], blockStep: "disqualified" },
+    { q: "Was ist dein Ziel mit einem Online-Einkommen?",
+      a: ["Ein Nebeneinkommen aufbauen", "Meinen Job ersetzen", "Finanzielle Freiheit", "Erstmal ausprobieren"] },
+    { q: "Wie wichtig ist dir ein bewährtes System mit persönlicher Begleitung?",
+      a: ["Sehr wichtig", "Eher wichtig", "Nicht so wichtig"] },
+    { q: "Bist du bereit, in den nächsten 30 Tagen wirklich zu starten?",
+      a: ["Ja, sofort", "Ja, in Kürze", "Noch unsicher"] },
+    { q: "Wie viel Zeit kannst du dir aktuell pro Tag investieren?",
+      a: ["Weniger als 60 Minuten", "60 Minuten bis 2 Stunden", "2 bis 3 Stunden", "Mehr als 3 Stunden"] },
+    { q: "Was ist dein finanzielles Ziel (monatliches Einkommen) mit der Content-to-Cash-Methode?",
+      a: ["500 – 1.000 €", "1.000 – 3.000 €", "3.000 – 5.000 €", "5.000 € +"] }
+  ];
+
+  /* ===== Clipper-Tracking (Provisions-Zuordnung) =====
+     Jeder Clipper verschickt seinen eigenen Link mit ?c=CODE (siehe Punkt 7 im
+     Kopf-Kommentar). Wird zusätzlich in localStorage gesichert, falls der Parameter
+     beim Klicken durchs Quiz mal verloren geht. Kein Code vorhanden → "direkt". */
+  const CLIPPER_KEY = 'ec_clipper_code';
+  const urlClipper = new URLSearchParams(window.location.search).get('c');
+  if (urlClipper) localStorage.setItem(CLIPPER_KEY, urlClipper.trim().toLowerCase());
+  const clipperCode = (urlClipper || localStorage.getItem(CLIPPER_KEY) || 'direkt').trim().toLowerCase();
+
+  const steps = { welcome:qs('[data-step=welcome]'), question:qs('[data-step=question]'),
+                  form:qs('[data-step=form]'), loading:qs('[data-step=loading]'), result:qs('[data-step=result]'),
+                  underage:qs('[data-step=underage]'), disqualified:qs('[data-step=disqualified]') };
+  const bar = document.getElementById('bar');
+  let qi = 0;                       // aktuelle Fragen-Nummer
+  let phase = 'welcome';            // welcome | question | form | loading | result
+  const answers = [];              // gewählte Antworten
+
+  function qs(s){ return document.querySelector(s); }
+  function show(name){ Object.values(steps).forEach(s=>s.classList.remove('active')); steps[name].classList.add('active'); phase=name; window.scrollTo({top:0,behavior:'smooth'}); }
+
+  function setProgress(){
+    let pct = 0;
+    if (phase==='welcome') pct = 4;
+    else if (phase==='question') pct = 8 + (qi/questions.length)*72;   // 8→80%
+    else if (phase==='form') pct = 86;
+    else if (phase==='loading') pct = 94;
+    else if (phase==='result') pct = 100;
+    else if (phase==='underage') pct = 20;
+    else if (phase==='disqualified') pct = 30;
+    bar.style.width = pct + '%';
+  }
+
+  function goHome(e){ if(e) e.preventDefault(); qi=0; answers.length=0; show('welcome'); setProgress(); }
+
+  function start(){ qi=0; renderQuestion(); show('question'); setProgress(); }
+
+  function renderQuestion(){
+    const cur = questions[qi];
+    document.getElementById('qcount').textContent = 'Frage ' + (qi+1) + ' von ' + questions.length;
+    document.getElementById('qtitle').textContent = cur.q;
+    document.getElementById('backBtn').style.visibility = qi===0 ? 'hidden' : 'visible';
+    const box = document.getElementById('options'); box.innerHTML = '';
+    cur.a.forEach((ans, idx) => {
+      const b = document.createElement('button');
+      b.className = 'opt' + (answers[qi]===ans ? ' sel' : '');
+      b.style.animationDelay = (idx * 70) + 'ms';   // gestaffeltes Einblenden
+      b.innerHTML = '<span class="dot"></span><span>' + ans + '</span>';
+      b.onclick = (ev) => choose(ans, ev, b);
+      box.appendChild(b);
+    });
+  }
+
+  function choose(ans, ev, btn){
+    answers[qi] = ans;
+    document.querySelectorAll('#options .opt').forEach(o=>o.classList.remove('sel'));
+    if (btn){
+      // .sel neu triggern, damit die Pop-Animation sicher abspielt
+      void btn.offsetWidth;
+      btn.classList.add('sel');
+      // Ripple-Effekt am Klickpunkt
+      if (ev){
+        const r = document.createElement('span'); r.className = 'ripple';
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        r.style.width = r.style.height = size + 'px';
+        r.style.left = (ev.clientX - rect.left - size/2) + 'px';
+        r.style.top  = (ev.clientY - rect.top  - size/2) + 'px';
+        btn.appendChild(r);
+        setTimeout(() => r.remove(), 620);
+      }
+    }
+    // Disqualifizierende Antworten abfangen → passender Hinweis-Screen
+    const cur = questions[qi];
+    if (cur.block && cur.block.indexOf(ans) !== -1){
+      setTimeout(() => { show(cur.blockStep || 'underage'); setProgress(); }, 420);
+      return;
+    }
+    setTimeout(next, 380);   // etwas mehr Zeit, damit die Animation sichtbar ist
+  }
+
+  function next(){
+    if (qi < questions.length-1){ qi++; renderQuestion(); show('question'); }
+    else { show('form'); }
+    setProgress();
+  }
+  function back(){
+    if (phase==='form'){ show('question'); setProgress(); return; }
+    if (phase==='question' && qi>0){ qi--; renderQuestion(); show('question'); setProgress(); }
+  }
+
+  function submitLead(e){
+    e.preventDefault();
+    const lead = {
+      name: document.getElementById('f-name').value.trim(),
+      email: document.getElementById('f-mail').value.trim(),
+      phone: document.getElementById('f-phone').value.trim(),
+      clipper: clipperCode,   // Provisions-Zuordnung — siehe Punkt 7 im Kopf-Kommentar
+      answers: questions.map((q,i)=>({ frage:q.q, antwort:answers[i]||'—' }))
+    };
+    /* >>> HIER Lead anbinden: an Webhook/CRM (Make, Zapier, GoHighLevel) oder per fetch senden.
+       Beispiel:
+       fetch('DEIN-WEBHOOK-URL', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});
+    */
+    window.__lastLead = lead;
+    show('loading'); setProgress();
+    setTimeout(()=>{ buildResult(lead); show('result'); setProgress(); }, 1800);
+  }
+
+  /* Punktevergabe pro Antwort (Index = Frage-Nummer). Höher = stärkerer Kandidat. */
+  const scoreMap = {
+    3: { "Meinen Job ersetzen":2, "Finanzielle Freiheit":2, "Ein Nebeneinkommen aufbauen":1, "Erstmal ausprobieren":0 },
+    4: { "Sehr wichtig":2, "Eher wichtig":1, "Nicht so wichtig":0 },
+    5: { "Ja, sofort":2, "Ja, in Kürze":1, "Noch unsicher":0 },
+    6: { "Mehr als 3 Stunden":2, "2 bis 3 Stunden":2, "60 Minuten bis 2 Stunden":1, "Weniger als 60 Minuten":0 },
+    7: { "5.000 € +":2, "3.000 – 5.000 €":2, "1.000 – 3.000 €":1, "500 – 1.000 €":1 }
+  };
+
+  function buildResult(lead){
+    // Score berechnen (max 10)
+    let score = 0;
+    for (const i in scoreMap){ score += (scoreMap[i][answers[i]] || 0); }
+    lead.score = score;   // nicht sichtbar für den Lead — nur fürs CRM/den Setter, siehe Kopf-Kommentar
+
+    // Titel/Text sind bewusst fix — ändern sich nicht mehr nach Score (nur der Name ist dynamisch)
+    const title = '⚡ ' + lead.name + ', du hast das Potenzial für EliteCircle!';
+    const text  = 'Deine Antworten zeigen: Du bringst die richtige Einstellung für die Elite mit. Lass uns dementsprechend direkt deinen individuellen Fahrplan festlegen.';
+    document.getElementById('res-title').textContent = title;
+    document.getElementById('res-text').textContent = text;
+
+    // Nur 3 Kernpunkte zeigen statt aller 8 Antworten — lenkt weniger vom CTA ab.
+    const highlights = [
+      { i: 3, label: 'Ziel' },
+      { i: 6, label: 'Zeit pro Tag' },
+      { i: 7, label: 'Finanzielles Ziel' }
+    ];
+    const r = document.getElementById('recap'); r.innerHTML = '';
+    highlights.forEach(h=>{
+      const row = document.createElement('div'); row.className='row';
+      row.innerHTML = '<span class="q">'+ h.label +'</span><span class="a">'+ (answers[h.i]||'—') +'</span>';
+      r.appendChild(row);
+    });
+    /* Antworten an den Booking-Link hängen (optional, für Vorqualifizierung im Call):
+       document.getElementById('res-cta').href = 'DEIN-BOOKING-LINK?name='+encodeURIComponent(lead.name); */
+  }
+
+  document.getElementById('qCountSub').textContent = questions.length;
+  document.getElementById('qCountMeta').textContent = questions.length;
+  setProgress();
+</script>
+</body>
+</html>

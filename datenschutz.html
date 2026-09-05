@@ -1,0 +1,122 @@
+<!--
+  DATENSCHUTZERKLÄRUNG — EliteCircle
+  Pflichtseite gem. Art. 13 DSGVO. Beschreibt die Datenverarbeitung durch quiz-funnel.html
+  (Lead-Formular: Name/E-Mail/Telefon) + anleitung.html + ggf. eingebundene Tools
+  (Booking/CRM/Hosting/Analytics). Alle [PLATZHALTER] vor Live-Gang ausfüllen bzw. Abschnitte
+  entfernen, die auf dich nicht zutreffen (z. B. wenn (noch) kein CRM/Booking-Tool angebunden ist).
+-->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutzerklärung — EliteCircle</title>
+<style>
+  :root{
+    --bg:#09090c; --bg-soft:#101015; --card:#121218; --card-hi:#16161d;
+    --accent:#d4af37; --accent-soft:#e6c860; --accent-strong:#b8932f;
+    --lila:#8b5cf6; --text:#f4f1ea; --muted:#8c8c97; --muted-d:#5d5d68;
+    --line:rgba(212,175,55,.16);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:"Helvetica Neue",Arial,system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh;margin:0;
+    background-image:radial-gradient(900px 520px at 50% -6%,rgba(212,175,55,.12),transparent 60%),radial-gradient(700px 480px at 50% 116%,rgba(139,92,246,.08),transparent 60%)}
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(9,9,12,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .topbar-in{max-width:760px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;font-size:.98rem;text-decoration:none;color:var(--text)}
+  .back-link{color:var(--muted);font-size:.88rem;text-decoration:none}
+  .back-link:hover{color:var(--accent)}
+  main{max-width:760px;margin:0 auto;padding:52px 24px 90px}
+  .eyebrow{font-size:.76rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:14px}
+  h1{font-size:2.1rem;font-weight:800;letter-spacing:-.5px;margin:0 0 8px}
+  .updated{color:var(--muted-d);font-size:.85rem;margin:0 0 36px}
+  h2{font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.2px;margin:44px 0 6px}
+  h3{font-size:.92rem;font-weight:700;color:var(--accent);letter-spacing:.3px;margin:22px 0 8px}
+  p{color:var(--muted);margin:0 0 12px;font-size:.98rem}
+  ul{color:var(--muted);margin:0 0 14px;padding-left:20px;font-size:.98rem}
+  li{margin-bottom:5px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 28px;margin-bottom:20px}
+  .fill{color:var(--accent-soft);background:rgba(212,175,55,.1);border:1px dashed rgba(212,175,55,.4);border-radius:6px;padding:1px 8px;font-size:.92em}
+  a{color:var(--accent)}
+  .note{margin-top:40px;padding:16px 20px;border:1px solid var(--line);border-radius:12px;color:var(--muted-d);font-size:.85rem}
+  footer{text-align:center;color:var(--muted-d);font-size:.82rem;padding:30px 24px}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:30px}
+  .toc a{display:block;color:var(--muted);text-decoration:none;font-size:.9rem;padding:4px 0}
+  .toc a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-in">
+      <a class="brand" href="quiz-funnel.html"><span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);flex:0 0 auto"></span><span>Elite<span style="color:var(--accent)">Circle</span></span></a>
+      <a class="back-link" href="quiz-funnel.html">← Zurück</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="eyebrow">Rechtliches</div>
+    <h1>Datenschutzerklärung</h1>
+    <p class="updated">Stand: <span class="fill">[Datum einfügen]</span></p>
+
+    <nav class="toc">
+      <a href="#verantwortlicher">1. Verantwortlicher</a>
+      <a href="#allgemein">2. Allgemeines zur Datenverarbeitung</a>
+      <a href="#quiz">3. Daten aus dem Quiz-/Lead-Formular</a>
+      <a href="#anleitung">4. Zusendung der Anleitung per E-Mail</a>
+      <a href="#drittanbieter">5. Eingesetzte Dienste / Drittanbieter</a>
+      <a href="#rechte">6. Deine Rechte</a>
+      <a href="#speicherdauer">7. Speicherdauer</a>
+    </nav>
+
+    <div class="card">
+      <h2 id="verantwortlicher">1. Verantwortlicher</h2>
+      <p>Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</p>
+      <p><span class="fill">[Vor- und Nachname / Firmenname]</span><br>
+      <span class="fill">[Straße und Hausnummer]</span><br>
+      <span class="fill">[PLZ und Ort]</span><br>
+      E-Mail: <span class="fill">[E-Mail-Adresse]</span></p>
+
+      <h2 id="allgemein">2. Allgemeines zur Datenverarbeitung</h2>
+      <p>Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung erfolgt nur mit Einwilligung des Nutzers oder auf einer sonstigen gesetzlichen Grundlage (Art. 6 Abs. 1 DSGVO).</p>
+
+      <h2 id="quiz">3. Daten aus dem Quiz-/Lead-Formular</h2>
+      <p>Auf dieser Website bieten wir eine kurze Selbsteinschätzung ("Speed-Analyse") an. Am Ende des Quiz kannst du freiwillig folgende Daten angeben, um dein Ergebnis zu erhalten und einen Beratungstermin zu vereinbaren:</p>
+      <ul>
+        <li>Name</li>
+        <li>E-Mail-Adresse</li>
+        <li>Telefonnummer</li>
+        <li>Deine Antworten auf die Quiz-Fragen</li>
+      </ul>
+      <p>Die Verarbeitung erfolgt auf Grundlage deiner Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die du beim Absenden des Formulars per Checkbox erteilst. Die Daten werden genutzt, um dich zu deinem Ergebnis bzw. Beratungstermin zu kontaktieren. Eine Weitergabe an Dritte erfolgt nur im Rahmen der unter Punkt 5 genannten Auftragsverarbeiter (z. B. Terminbuchungs- und CRM-Tools), nicht zu Werbezwecken an sonstige Dritte.</p>
+      <p>Du kannst deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen, z. B. per E-Mail an <span class="fill">[E-Mail-Adresse]</span>.</p>
+
+      <h2 id="anleitung">4. Zusendung der Anleitung per E-Mail</h2>
+      <p>Nach Buchung eines Beratungstermins erhältst du automatisiert eine E-Mail mit einem Link zu einer Anleitungsseite. Die Verarbeitung deiner E-Mail-Adresse hierfür erfolgt zur Erfüllung vorvertraglicher Maßnahmen bzw. auf Grundlage deiner Einwilligung (Art. 6 Abs. 1 lit. a/b DSGVO).</p>
+
+      <h2 id="drittanbieter">5. Eingesetzte Dienste / Drittanbieter</h2>
+      <p>Je nach aktuellem technischen Stand können folgende Dienste zur Datenverarbeitung eingesetzt werden. Mit allen genannten Anbietern, die als Auftragsverarbeiter tätig werden, wird ein Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO geschlossen, soweit erforderlich:</p>
+      <ul>
+        <li><b style="color:var(--text)">Hosting:</b> <span class="fill">[Hosting-Anbieter, z. B. Netlify/Vercel/IONOS]</span> — verarbeitet technische Zugriffsdaten (IP-Adresse, Datum/Uhrzeit) beim Aufruf der Seite.</li>
+        <li><b style="color:var(--text)">Terminbuchung:</b> <span class="fill">[z. B. Calendly]</span> — verarbeitet Name, E-Mail und Terminwunsch zur Vereinbarung des Beratungsgesprächs.</li>
+        <li><b style="color:var(--text)">CRM / Lead-Verwaltung:</b> <span class="fill">[z. B. Close CRM]</span> — verarbeitet die im Formular angegebenen Kontaktdaten zur Nachverfolgung deiner Anfrage.</li>
+        <li><b style="color:var(--text)">Video-Hosting (Anleitung):</b> <span class="fill">[z. B. YouTube, sofern eingebettet]</span> — beim Abspielen können Daten an den jeweiligen Anbieter übertragen werden.</li>
+      </ul>
+      <p style="font-size:.85rem;color:var(--muted-d)">Abschnitte zu Diensten, die du (noch) nicht einsetzt, kannst du entfernen; ergänze neue Dienste, sobald du sie live schaltest.</p>
+
+      <h2 id="rechte">6. Deine Rechte</h2>
+      <p>Du hast jederzeit das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen Daten (Art. 15–21 DSGVO). Zudem steht dir ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu.</p>
+
+      <h2 id="speicherdauer">7. Speicherdauer</h2>
+      <p>Wir speichern personenbezogene Daten nur so lange, wie dies zur Erfüllung des jeweiligen Zwecks (z. B. Terminvereinbarung, Beratung) erforderlich ist, oder wie gesetzliche Aufbewahrungspflichten dies vorschreiben.</p>
+    </div>
+
+    <div class="note">
+      Hinweis: Dies ist ein inhaltliches Gerüst, kein rechtsverbindlicher Text. Alle <span class="fill" style="padding:0 4px">[Platzhalter]</span> ausfüllen bzw. nicht zutreffende Dienste entfernen, sobald feststeht, welche Tools (Hosting/Booking/CRM) tatsächlich live sind. Vor dem Live-Gang empfiehlt sich eine kurze Prüfung durch einen Anwalt/Datenschutzbeauftragten, insbesondere wegen deines geplanten Wohnsitzwechsels nach Zypern.
+    </div>
+  </main>
+
+  <footer>© EliteCircle · <a href="impressum.html">Impressum</a></footer>
+
+</body>
+</html>
